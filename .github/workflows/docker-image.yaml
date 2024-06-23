@@ -9,7 +9,6 @@ on:
 env:
   AWS_REGION: us-west-2
   AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
-  BUILD_NUMBER: ${GITHUB_RUN_NUMBER}
 
 # Permission can be added at job level or workflow level
 permissions:
@@ -37,6 +36,18 @@ jobs:
           aws --version
           docker version
 
+      - name: Get version from VERSION file
+        id: get-version
+        run: |
+          if [ -f VERSION ]; then
+            VERSION=$(cat VERSION)
+          else
+            echo "VERSION file not found. Exiting..."
+            exit 1
+          fi
+          echo "Current version: $VERSION"
+          echo ::set-output name=version::$VERSION
+
       - name: Login to ECR
         run: |
           aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT }}.dkr.ecr.us-west-2.amazonaws.com
@@ -47,7 +58,7 @@ jobs:
         env:
           ECR_REGISTRY: ${{ env.AWS_ACCOUNT }}.dkr.ecr.us-west-2.amazonaws.com
           ECR_REPOSITORY: node
-          TAG: ${{ env.BUILD_NUMBER }}
+          TAG: ${{ steps.get-version.outputs.version }}
 
       - name: Push Docker image to ECR
         run: |
@@ -55,4 +66,4 @@ jobs:
         env:
           ECR_REGISTRY: ${{ env.AWS_ACCOUNT }}.dkr.ecr.us-west-2.amazonaws.com
           ECR_REPOSITORY: node
-          TAG: ${{ env.BUILD_NUMBER }}
+          TAG: ${{ steps.get-version.outputs.version }}
