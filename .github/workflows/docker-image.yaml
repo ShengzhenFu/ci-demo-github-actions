@@ -9,7 +9,7 @@ on:
 env:
   AWS_REGION: us-west-2
   AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
-  BUILD_NUMBER: 1.0.${GITHUB_RUN_NUMBER}
+  BUILD_NUMBER: 1.0.$GITHUB_RUN_NUMBER
 
 # Permission can be added at job level or workflow level
 permissions:
