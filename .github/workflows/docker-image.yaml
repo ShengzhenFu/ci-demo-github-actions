@@ -8,6 +8,7 @@ on:
 
 env:
   AWS_REGION: us-west-2
+  AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
 
 # Permission can be added at job level or workflow level
 permissions:
@@ -26,7 +27,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
-          role-to-assume: arn:aws:iam::440900076177:role/GitHubAction-AssumeRoleWithAction
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/GitHubAction-AssumeRoleWithAction
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_REGION }}
 
@@ -37,13 +38,13 @@ jobs:
 
       - name: Login to ECR
         run: |
-          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin 440900076177.dkr.ecr.us-west-2.amazonaws.com
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT }}.dkr.ecr.us-west-2.amazonaws.com
 
       - name: Build Docker image
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$TAG .
         env:
-          ECR_REGISTRY: 440900076177.dkr.ecr.us-west-2.amazonaws.com
+          ECR_REGISTRY: ${{ env.AWS_ACCOUNT }}.dkr.ecr.us-west-2.amazonaws.com
           ECR_REPOSITORY: node
           TAG: 1.0
 
@@ -51,6 +52,6 @@ jobs:
         run: |
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
         env:
-          ECR_REGISTRY: 440900076177.dkr.ecr.us-west-2.amazonaws.com
+          ECR_REGISTRY: ${{ env.AWS_ACCOUNT }}.dkr.ecr.us-west-2.amazonaws.com
           ECR_REPOSITORY: node
           TAG: 1.0
