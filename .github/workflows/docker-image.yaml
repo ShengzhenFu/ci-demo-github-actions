@@ -35,6 +35,8 @@ jobs:
         run: |
           aws --version
           docker version
+          node --version
+          npm version
 
       - name: Get version from VERSION file
         id: get-version
