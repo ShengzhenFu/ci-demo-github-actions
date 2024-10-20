@@ -11,6 +11,8 @@ env:
   AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
 
 # Permission can be added at job level or workflow level
+# https://docs.github.com/en/enterprise-cloud@latest/actions/security-for-github-actions/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services#adding-permissions-settings
+
 permissions:
   id-token: write # This is required for requesting the JWT
   contents: read # This is required for actions/checkout
